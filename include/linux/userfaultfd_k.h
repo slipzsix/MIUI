@@ -28,9 +28,6 @@
 #define UFFD_SHARED_FCNTL_FLAGS (O_CLOEXEC | O_NONBLOCK)
 #define UFFD_FLAGS_SET (EFD_SHARED_FCNTL_FLAGS)
 
-static_assert(UFFDIO_ZEROPAGE_MODE_MMAP_TRYLOCK == UFFDIO_COPY_MODE_MMAP_TRYLOCK);
-#define UFFDIO_MODE_MMAP_TRYLOCK UFFDIO_COPY_MODE_MMAP_TRYLOCK
-
 extern int sysctl_unprivileged_userfaultfd;
 
 extern int handle_userfault(struct vm_fault *vmf, unsigned long reason);
