@@ -876,14 +876,14 @@ static void sugov_limits(struct cpufreq_policy *policy)
 }
 
 static struct cpufreq_governor schedutil_gov = {
-	.name = "schedutil",
-	.owner = THIS_MODULE,
-	.dynamic_switching = true,
-	.init = sugov_init,
-	.exit = sugov_exit,
-	.start = sugov_start,
-	.stop = sugov_stop,
-	.limits = sugov_limits,
+	.name			= "schedutil",
+	.owner			= THIS_MODULE,
+	.flags			= CPUFREQ_GOV_DYNAMIC_SWITCHING,
+	.init			= sugov_init,
+	.exit			= sugov_exit,
+	.start			= sugov_start,
+	.stop			= sugov_stop,
+	.limits			= sugov_limits,
 };
 
 #ifdef CONFIG_CPU_FREQ_DEFAULT_GOV_SCHEDUTIL
