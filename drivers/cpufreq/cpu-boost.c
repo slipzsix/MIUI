@@ -315,6 +315,14 @@ static int cpu_boost_init(void)
 {
 	int cpu, ret;
 	struct cpu_sync *s;
+	struct sched_param param = { .sched_priority = 2 };
+	cpumask_t sys_bg_mask;
+
+	/* Hardcode the cpumask to bind the kthread to it */
+	cpumask_clear(&sys_bg_mask);
+	for (i = 0; i <= 5; i++) {
+		cpumask_set_cpu(i, &sys_bg_mask);
+	}
 
 	cpu_boost_wq = alloc_workqueue("cpuboost_wq", WQ_HIGHPRI, 0);
 	if (!cpu_boost_wq)
