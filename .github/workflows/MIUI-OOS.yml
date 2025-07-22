@@ -39,8 +39,8 @@ jobs:
       run: |
             export ARCH=arm64
             export PATH="${PWD}/clang/bin:${PWD}gcc64/bin:${PWD}gcc32/bin:${PATH}"
-            export KBUILD_BUILD_USER=buildkernel1
-            export KBUILD_BUILD_HOST=mhddonip
+            export KBUILD_BUILD_USER=runner
+            export KBUILD_BUILD_HOST=slipzsix
             export KBUILD_COMPILER_STRING="${PWD}/clang"           
             export LLVM=1 
             export LLVM_IAS=1
@@ -59,7 +59,7 @@ jobs:
 
     - name: Fetch AnyKernel3
       run: |
-           git clone --depth=1 https://github.com/buildkernel1/Anykernel3.git -b main AnyKernel3  
+           git clone --depth=1 https://github.com/slipzsix/Anykernel3.git -b main AnyKernel3  
            if [ -f out/arch/arm64/boot/Image.gz ]; then
             cp out/arch/arm64/boot/Image.gz AnyKernel3/Image.gz
            fi
@@ -73,5 +73,5 @@ jobs:
     - name: Upload Kernel
       uses: actions/upload-artifact@v4
       with:
-        name: STRIX-Interstellar-MIUI-OOS-${{ env.BUILD_TIME }}
+        name: STRIX-Ryzen-RTX-MIUI-OOS-${{ env.BUILD_TIME }}
         path: AnyKernel3/*
