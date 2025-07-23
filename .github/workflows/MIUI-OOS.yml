@@ -73,5 +73,5 @@ jobs:
     - name: Upload Kernel
       uses: actions/upload-artifact@v4
       with:
-        name: STRIX-Ryzen-RTX-MIUI-OOS-${{ env.BUILD_TIME }}
+        name: STRIX-SuperRyzenS-MIUI-OOS-${{ env.BUILD_TIME }}
         path: AnyKernel3/*
