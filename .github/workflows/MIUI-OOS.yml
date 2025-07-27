@@ -22,7 +22,7 @@ jobs:
         
     - name: Fetch Toolchains 
       run: |
-            mkdir clang && curl  https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz -RLO && tar -C clang/ -xf clang-*.tar.gz
+            git clone --depth=1 https://github.com/Neutron-Toolchains/clang.git clang
             git clone https://github.com/greenforce-project/gcc-arm64 -b main --depth=1 gcc64
             git clone https://github.com/greenforce-project/gcc-arm -b main --depth=1 gcc32
                                     
@@ -73,5 +73,5 @@ jobs:
     - name: Upload Kernel
       uses: actions/upload-artifact@v4
       with:
-        name: STRIX-SuperRyzenS-MIUI-OOS-${{ env.BUILD_TIME }}
+        name: SuperRyzenS-MIUI-OOS-${{ env.BUILD_TIME }}
         path: AnyKernel3/*
