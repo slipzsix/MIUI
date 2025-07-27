@@ -22,7 +22,7 @@ jobs:
         
     - name: Fetch Toolchains 
       run: |
-            git clone --depth=1 https://github.com/Neutron-Toolchains/clang.git clang
+            git clone --depth=1 https://github.com/kdrag0n/proton-clang.git clang
             git clone https://github.com/greenforce-project/gcc-arm64 -b main --depth=1 gcc64
             git clone https://github.com/greenforce-project/gcc-arm -b main --depth=1 gcc32
                                     
