@@ -1,12 +1,9 @@
 name: build kernel [MIUI-OOS]
-
 on:
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
@@ -48,7 +45,7 @@ jobs:
         export PATH="${PWD}/clang/bin:${PWD}/gcc64/bin:${PWD}/gcc32/bin:${PATH}"
         export KBUILD_BUILD_USER=runner
         export KBUILD_BUILD_HOST=slipzsix
-        export KBUILD_COMPILER_STRING="Neutron Clang 14.0.6 Monster Gaming Edition by ZyCromerZ"
+        export KBUILD_COMPILER_STRING="Neutron Clang 14.0.6 Gaming Edition"
         export LLVM=1 
         export LLVM_IAS=1
         export CLANG_TRIPLE=aarch64-linux-gnu-
