@@ -10,10 +10,10 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
-      
-    - name: Prepare timezone 
+
+    - name: Prepare Timezone
       run: |
-        echo "BUILD_TIME=$(TZ=Asia/Jakarta date "+%d%m%Y-%H%M")" >> $GITHUB_ENV
+        echo "BUILD_TIME=$(TZ=Asia/Jakarta date '+%d%m%Y-%H%M')" >> $GITHUB_ENV
         sudo rm /etc/localtime
         sudo ln -s /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
 
@@ -21,17 +21,17 @@ jobs:
       run: |
         sudo apt update -y
         sudo apt install -y bc cpio flex bison aptitude git python-is-python3 tar perl wget curl lz4
-        sudo aptitude install libssl-dev -y
+        sudo aptitude install -y libssl-dev
 
-    - name: Fetch Neutron Clang Gaming (Stable for 4.14)
+    - name: Fetch Neutron Clang Gaming (14.0.6 Stable for 4.14)
       run: |
-        curl -LO https://github.com/ZyCromerZ/Clang/releases/download/20240517/Neutron-Clang-17.0.2-20240517.tar.gz
-        mkdir clang && tar -C clang -xf Neutron-Clang-17.0.2-20240517.tar.gz
+        curl -LO https://github.com/ZyCromerZ/Clang/releases/download/14.0.6-20240212-release/Clang-14.0.6-20240212.tar.gz
+        mkdir clang && tar -C clang -xf Clang-14.0.6-20240212.tar.gz
 
     - name: Fetch GCC for 64/32-bit
       run: |
-        git clone https://github.com/greenforce-project/gcc-arm64 -b main --depth=1 gcc64
-        git clone https://github.com/greenforce-project/gcc-arm -b main --depth=1 gcc32
+        git clone --depth=1 https://github.com/greenforce-project/gcc-arm64 -b main gcc64
+        git clone --depth=1 https://github.com/greenforce-project/gcc-arm -b main gcc32
 
     - name: Fetch KernelSU-SuSFS
       run: |
@@ -48,7 +48,7 @@ jobs:
         export PATH="${PWD}/clang/bin:${PWD}/gcc64/bin:${PWD}/gcc32/bin:${PATH}"
         export KBUILD_BUILD_USER=runner
         export KBUILD_BUILD_HOST=slipzsix
-        export KBUILD_COMPILER_STRING="Neutron Clang Gaming"
+        export KBUILD_COMPILER_STRING="Neutron Clang 14.0.6"
         export LLVM=1 
         export LLVM_IAS=1
         export CLANG_TRIPLE=aarch64-linux-gnu-
