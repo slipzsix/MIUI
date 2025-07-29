@@ -23,9 +23,10 @@ jobs:
         sudo apt install -y bc cpio flex bison aptitude git python-is-python3 tar perl wget curl lz4
         sudo aptitude install libssl-dev -y
 
-    - name: Fetch Neutron Clang Gaming
+    - name: Fetch Neutron Clang Gaming (Stable for 4.14)
       run: |
-        git clone --depth=1 https://github.com/ZyCromerZ/Clang.git -b main clang
+        curl -LO https://github.com/ZyCromerZ/Clang/releases/download/20240517/Neutron-Clang-17.0.2-20240517.tar.gz
+        mkdir clang && tar -C clang -xf Neutron-Clang-17.0.2-20240517.tar.gz
 
     - name: Fetch GCC for 64/32-bit
       run: |
