@@ -20,14 +20,9 @@ jobs:
             sudo apt install bc cpio flex bison aptitude git python-is-python3 tar perl wget curl lz4 -y
             sudo aptitude install libssl-dev -y
         
-    - name: Fetch Toolchains (Neutron PGO)
+    - name: Fetch Toolchains 
       run: |
-            mkdir clang && cd clang
-            curl -LO "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman"
-            chmod +x antman
-            ./antman -S Neutron-pgo-glibc
-            ./antman --patch=glibc
-            cd ..
+            mkdir clang && cd clang && curl -LO "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman" && chmod a+x antman && ./antman -S && ./antman --patch=glibc && cd .. && ls
             git clone https://github.com/greenforce-project/gcc-arm64 -b main --depth=1 gcc64
             git clone https://github.com/greenforce-project/gcc-arm -b main --depth=1 gcc32
                                     
