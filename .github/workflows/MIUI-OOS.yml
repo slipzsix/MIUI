@@ -58,6 +58,7 @@ jobs:
             export HOSTLD=ld.lld
             make O=out clean
             make O=out mrproper
+            ln -s ../arch out/arch
             make O=out ARCH=arm64 sweet_defconfig
             make -j$(nproc --all) O=out \
               CC=clang \
