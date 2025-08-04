@@ -802,7 +802,7 @@ ifdef CONFIG_CC_WERROR
 KBUILD_CFLAGS  += -Werror
 endif
 
-ifdef CONFIG_LTO_CLANG
+ifdef CONFIG_LTO_CLANG_FULL
 KBUILD_CFLAGS	+= -fwhole-program-vtables
 endif
 
