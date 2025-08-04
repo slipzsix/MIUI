@@ -48,18 +48,18 @@ jobs:
             export CLANG_TRIPLE=aarch64-linux-gnu-
             export CROSS_COMPILE=aarch64-linux-android-
             export CROSS_COMPILE_ARM32=arm-linux-androideabi-
-
-            # 🔄 Bersihkan output build sebelumnya
             make O=out clean
             make O=out mrproper
-
-            # 🛠 Terapkan defconfig
-            make O=out vendor/sweet_defconfig
-
-            # 🚀 Build kernel
-            make -j$(nproc --all) O=out CC=clang
-
-            # 📝 Simpan hasil defconfig final
+            make O=out ARCH=arm64 sweet_defconfig
+            make -j$(nproc --all) O=out \
+              CC=clang \
+              AR=llvm-ar \
+              NM=llvm-nm \
+              OBJCOPY=llvm-objcopy \
+              OBJDUMP=llvm-objdump \
+              STRIP=llvm-strip \
+              LD=ld.lld \
+              HOSTLD=ld.lld
             mv out/.config out/sweet_defconfig.txt
 
     - name: Upload defconfig 
