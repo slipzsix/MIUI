@@ -54,7 +54,7 @@ jobs:
       
     - name: Fetch AnyKernel3
       run: |
-           git clone --depth=1 https://github.com/Taufik-Daulay/AnyKernel3.git -b main AnyKernel3  
+           git clone --depth=1 https://github.com/slipzsix/Anykernel3.git -b main AnyKernel3  
            if [ -f out/arch/arm64/boot/Image.gz ]; then
             cp out/arch/arm64/boot/Image.gz AnyKernel3/Image.gz
            fi
