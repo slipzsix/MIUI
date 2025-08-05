@@ -801,8 +801,8 @@ ifdef CONFIG_CC_WERROR
 KBUILD_CFLAGS  += -Werror
 endif
 
-ifdef CONFIG_LTO_CLANG
-KBUILD_CFLAGS	+= -fwhole-program-vtables
+ifdef CONFIG_LTO_CLANG_FULL
+KBUILD_CFLAGS += -flto -fwhole-program-vtables
 endif
 
 ifdef CONFIG_INLINE_OPTIMIZATION
