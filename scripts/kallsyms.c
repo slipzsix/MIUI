@@ -283,6 +283,30 @@ static int symbol_valid(struct sym_entry *s)
 	return 1;
 }
 
+/* remove all the invalid symbols from the table */
+static void shrink_table(void)
+{
+	unsigned int i, pos;
+
+	pos = 0;
+	for (i = 0; i < table_cnt; i++) {
+		if (symbol_valid(&table[i])) {
+			if (pos != i)
+				table[pos] = table[i];
+			pos++;
+		} else {
+			free(table[i].sym);
+		}
+	}
+	table_cnt = pos;
+
+	/* When valid symbol is not registered, exit to error */
+	if (!table_cnt) {
+		fprintf(stderr, "No valid symbol.\n");
+		exit(1);
+	}
+}
+
 static void read_map(FILE *in)
 {
 	while (!feof(in)) {
