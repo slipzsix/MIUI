@@ -264,13 +264,13 @@ And public attribution of xiaomi platforms(like F3 and so and)
 		irq-gpio = <&pm6150l_gpios 10 0>;
 		vib_f0_pre = < 2050 >;
 		vib_f0_cali_percen = < 7 >;
-		vib_cont_drv_lev = < 170 >;
-		vib_cont_drv_lvl_ov = < 240 >;
+		vib_cont_drv_lev = < 106 >;
+		vib_cont_drv_lvl_ov = < 155 >;
 		vib_cont_td = < 0xF06C >;
 		vib_cont_zc_thr = < 0x08F8 >;
 		vib_cont_num_brk = < 3 >;
 		vib_f0_coeff = < 260 >; /*Don't modify it*/
-		vib_duration_time = < 40 90 0 0 0 >;
+		vib_duration_time = < 15 60 0 0 0 >;
 		vib_brake_ram_config = < 1 1 90 60 20 3 1 3 1 1 90 60 30 5 1 3 0 0 50 40 25 0 5 3 >;
 		vib_brake_cont_config = < 1 1 90 42 20 5 2 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 >;
 		vib_f0_trace_parameter = < 9 5 1 15 >;
@@ -311,91 +311,91 @@ And public attribution of xiaomi platforms(like F3 and so and)
 		wf_0 {
 			/*CLICK*/
 			qcom,effect-id = <0>;
-			qcom,wf-vmax-mv = <3900>;
+			qcom,wf-vmax-mv = <3600>;
 			qcom,wf-pattern = [3e 3e];
 			qcom,wf-brake-pattern = [02 01 00 00];
-			qcom,wf-play-rate-us = <30000>;
+			qcom,wf-play-rate-us = <20000>;
 		};
 
 		wf_1 {
 			/*DOUBLE CLICK*/
 			qcom,effect-id = <1>;
-			qcom,wf-vmax-mv = <3900>;
+			qcom,wf-vmax-mv = <3600>;
 			qcom,wf-pattern = [7e 3e];
 			qcom,wf-brake-pattern = [03 01 00 00];
-			qcom,wf-play-rate-us = <30000>;
+			qcom,wf-play-rate-us = <20000>;
 		};
 
 		wf_2 {
 			/*TICK*/
 			qcom,effect-id = <2>;
-			qcom,wf-vmax-mv = <3900>;
+			qcom,wf-vmax-mv = <3600>;
 			qcom,wf-pattern = [7e 3e];
 			qcom,wf-brake-pattern = [02 01 00 00];
-			qcom,wf-play-rate-us = <30000>;
+			qcom,wf-play-rate-us = <20000>;
 		};
 
 		wf_3 {
 			/*THUD*/
 			qcom,effect-id = <3>;
-			qcom,wf-vmax-mv = <3900>;
+			qcom,wf-vmax-mv = <3600>;
 			qcom,wf-pattern = [3e 3e];
 			qcom,wf-brake-pattern = [02 01 00 00];
-			qcom,wf-play-rate-us = <30000>;
+			qcom,wf-play-rate-us = <20000>;
 		};
 
 		wf_4 {
 			/*POP*/
 			qcom,effect-id = <4>;
-			qcom,wf-vmax-mv = <3900>;
+			qcom,wf-vmax-mv = <3600>;
 			qcom,wf-pattern = [3e 3e];
 			qcom,wf-brake-pattern = [02 01 00 00];
-			qcom,wf-play-rate-us = <30000>;
+			qcom,wf-play-rate-us = <28000>;
 		};
 
 		wf_5 {
 			/*HEAVY CLICK*/
 			qcom,effect-id = <5>;
-			qcom,wf-vmax-mv = <3900>;
+			qcom,wf-vmax-mv = <3600>;
 			qcom,wf-pattern = [7e 7e 7e];
 			qcom,wf-brake-pattern = [03 03 01 00];
-			qcom,wf-play-rate-us = <30000>;
+			qcom,wf-play-rate-us = <20000>;
 		};
 
 		wf_6 {
 			/*id 6*/
 			qcom,effect-id = <6>;
-			qcom,wf-vmax-mv = <3900>;
+			qcom,wf-vmax-mv = <3600>;
 			qcom,wf-pattern = [3e 3e];
 			qcom,wf-brake-pattern = [02 01 00 00];
-			qcom,wf-play-rate-us = <30000>;
+			qcom,wf-play-rate-us = <20000>;
 		};
 
 		wf_7 {
 			/*id 7*/
 			qcom,effect-id = <7>;
-			qcom,wf-vmax-mv = <3900>;
+			qcom,wf-vmax-mv = <3600>;
 			qcom,wf-pattern = [3e 3e];
 			qcom,wf-brake-pattern = [02 01 00 00];
-			qcom,wf-play-rate-us = <30000>;
+			qcom,wf-play-rate-us = <20000>;
 		};
 
 		wf_8 {
 			/*id 8*/
 			qcom,effect-id = <8>;
-			qcom,wf-vmax-mv = <3900>;
+			qcom,wf-vmax-mv = <3600>;
 			qcom,wf-pattern = [3e 3e];
 			qcom,wf-brake-pattern = [02 01 00 00];
-			qcom,wf-play-rate-us = <30000>;
+			qcom,wf-play-rate-us = <20000>;
 		};
 
 		wf_9 {
 			/*id 9*/
 			qcom,effect-id = <9>;
-			qcom,wf-vmax-mv = <3900>;
+			qcom,wf-vmax-mv = <3600>;
 			qcom,wf-pattern = [3e 3e];
 			qcom,wf-brake-pattern = [02 01 00 00];
-			qcom,wf-play-rate-us = <30000>;
+			qcom,wf-play-rate-us = <20000>;
 		};
 	};
 
@@ -406,7 +406,7 @@ And public attribution of xiaomi platforms(like F3 and so and)
 		vin1-supply = <&S8C>;
 		vin1-voltage-level = <1350000  1350000>;
 		vin2-supply = <&BOB>;
-		vin2-voltage-level = <3600000  3600000>;
+		vin2-voltage-level = <3300000  3300000>;
 		en-gpio =  <&tlmm 30 0>;
 		status = "ok";
 	};
