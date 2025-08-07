@@ -262,10 +262,10 @@ And public attribution of xiaomi platforms(like F3 and so and)
 		reg = <0x5A>;
 		reset-gpio = <&tlmm 4 0>;
 		irq-gpio = <&pm6150l_gpios 10 0>;
-		vib_f0_pre = < 2050 >;
+		vib_f0_pre = < 1900 >;
 		vib_f0_cali_percen = < 7 >;
-		vib_cont_drv_lev = < 130 >;
-		vib_cont_drv_lvl_ov = < 180 >;
+		vib_cont_drv_lev = < 170 >;
+		vib_cont_drv_lvl_ov = < 240 >;
 		vib_cont_td = < 0xF06C >;
 		vib_cont_zc_thr = < 0x08F8 >;
 		vib_cont_num_brk = < 3 >;
