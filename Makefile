@@ -803,7 +803,6 @@ endif
 
 ifdef CONFIG_LTO_CLANG_FULL
 KBUILD_CFLAGS   += -flto -fwhole-program-vtables -fvisibility=hidden
-KBUILD_LDFLAGS  += -flto
 endif
 
 ifdef CONFIG_INLINE_OPTIMIZATION
