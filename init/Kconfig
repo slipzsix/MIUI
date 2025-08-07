@@ -1908,6 +1908,35 @@ config PROFILING
 	  Say Y here to enable the extended profiling support mechanisms used
 	  by profilers such as OProfile.
 
+menu "Link Time Optimization (LTO)"
+
+choice
+    prompt "LTO mode"
+    default LTO_NONE
+
+config LTO_NONE
+    bool "No LTO"
+
+config LTO_CLANG
+    bool "Use Clang LTO"
+
+endchoice
+
+config LTO
+    bool
+    default y if LTO_CLANG
+
+config LTO_CLANG_THIN
+    bool "Use ThinLTO"
+    depends on LTO_CLANG
+
+config LTO_CLANG_FULL
+    bool "Use Full LTO"
+    depends on LTO_CLANG
+    depends on !LTO_CLANG_THIN
+
+endmenu
+
 #
 # Place an empty function call at each tracepoint site. Can be
 # dynamically changed for a probe function.
