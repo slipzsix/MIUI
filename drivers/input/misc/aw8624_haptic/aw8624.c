@@ -2769,16 +2769,16 @@ static void aw8624_haptics_set_gain_work_routine(struct work_struct *work)
 		aw8624->level = (aw8624->new_gain - 16383) / 128;
 
 	if (aw8624->level < 0x1E)
-		aw8624->level = 0x80;	/*30 */
+		aw8624->level = 0x1E;	/*30 */
 
-	if (aw8624->ram_vbat_comp = AW8624_HAPTIC_RAM_VBAT_COMP_DISABLE;
+	if (aw8624->ram_vbat_comp == AW8624_HAPTIC_RAM_VBAT_COMP_ENABLE
 		&& aw8624->vbat)
 	{
 		comp_level = aw8624->level * AW8624_VBAT_REFER / aw8624->vbat;
 		if (comp_level > (128 * AW8624_VBAT_REFER / AW8624_VBAT_MIN)) {
 			comp_level = 128 * AW8624_VBAT_REFER / AW8624_VBAT_MIN;
 		}
-		aw8624_i2c_write(aw8624, AW8624_REG_DATDBG, aw8624_haptic_set_level(aw8624, aw8624->level));
+		aw8624_i2c_write(aw8624, AW8624_REG_DATDBG, aw8624_haptic_set_level(aw8624, comp_level));
 	}
 }
 
