@@ -802,13 +802,16 @@ KBUILD_CFLAGS  += -Werror
 endif
 
 ifdef CONFIG_LTO_CLANG
-  ifdef CONFIG_LTO_CLANG_FULL
-    KBUILD_CFLAGS   += -flto -fwhole-program-vtables -fvisibility=hidden
-  else
-    KBUILD_CFLAGS   += -flto -fvisibility=hidden
-  endif
+    ifdef CONFIG_LTO_CLANG_FULL
+        # Full LTO with whole-program vtables
+        KBUILD_CFLAGS += -flto -fwhole-program-vtables -fvisibility=hidden
+    else
+        # ThinLTO fallback
+        KBUILD_CFLAGS += -flto -fvisibility=hidden
+    endif
 else
-  KBUILD_CFLAGS   += -fvisibility=hidden
+    # No LTO: avoid whole-program flags, only ensure visibility
+    KBUILD_CFLAGS += -fvisibility=hidden
 endif
 
 ifdef CONFIG_INLINE_OPTIMIZATION
