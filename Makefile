@@ -801,8 +801,14 @@ ifdef CONFIG_CC_WERROR
 KBUILD_CFLAGS  += -Werror
 endif
 
-ifdef CONFIG_LTO_CLANG_FULL
-KBUILD_CFLAGS   += -flto -fwhole-program-vtables -fvisibility=hidden
+ifdef CONFIG_LTO_CLANG
+  ifdef CONFIG_LTO_CLANG_FULL
+    KBUILD_CFLAGS   += -flto -fwhole-program-vtables -fvisibility=hidden
+  else
+    KBUILD_CFLAGS   += -flto -fvisibility=hidden
+  endif
+else
+  KBUILD_CFLAGS   += -fvisibility=hidden
 endif
 
 ifdef CONFIG_INLINE_OPTIMIZATION
