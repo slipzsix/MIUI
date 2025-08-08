@@ -28,6 +28,11 @@ ccflags-y  :=
 cppflags-y :=
 ldflags-y  :=
 
+# ==== Tambahan untuk fix error LTO Full Clang ====
+# Filter keluar flag -fwhole-program-vtables untuk host tools
+KBUILD_CFLAGS := $(filter-out -fwhole-program-vtables,$(KBUILD_CFLAGS))
+# =================================================
+
 subdir-asflags-y :=
 subdir-ccflags-y :=
 
