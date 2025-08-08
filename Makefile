@@ -804,11 +804,10 @@ endif
 ifdef CONFIG_LTO_CLANG
     ifdef CONFIG_LTO_CLANG_FULL
         KBUILD_CFLAGS += -flto -fwhole-program-vtables -fvisibility=hidden
+        HOSTCFLAGS := $(filter-out -fwhole-program-vtables,$(HOSTCFLAGS))
     else
         KBUILD_CFLAGS += -flto -fvisibility=hidden
     endif
-    HOSTCFLAGS := $(filter-out -fwhole-program-vtables,$(KBUILD_CFLAGS))
-    export HOSTCFLAGS
 else
     KBUILD_CFLAGS += -fvisibility=hidden
 endif
