@@ -803,14 +803,12 @@ endif
 
 ifdef CONFIG_LTO_CLANG
     ifdef CONFIG_LTO_CLANG_FULL
-        # Full LTO with whole-program vtables
         KBUILD_CFLAGS += -flto -fwhole-program-vtables -fvisibility=hidden
     else
-        # ThinLTO fallback
         KBUILD_CFLAGS += -flto -fvisibility=hidden
     endif
+    HOSTCFLAGS := $(filter-out -fwhole-program-vtables,$(KBUILD_CFLAGS))
 else
-    # No LTO: avoid whole-program flags, only ensure visibility
     KBUILD_CFLAGS += -fvisibility=hidden
 endif
 
