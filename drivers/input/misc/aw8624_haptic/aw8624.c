@@ -1073,14 +1073,7 @@ static int aw8624_haptic_rtp_init(struct aw8624 *aw8624)
 
 static int16_t aw8624_haptic_effect_strength(struct aw8624 *aw8624)
 {
-	if (aw8624->play.vmax_mv >= 0x7FFF)
-		aw8624->level = 0x80;	/*128 */
-	else if (aw8624->play.vmax_mv <= 0x3FFF)
-		aw8624->level = 0x1E;	/*30 */
-	else
-		aw8624->level = (aw8624->play.vmax_mv - 16383) / 128;
-	if (aw8624->level < 0x1E)
-		aw8624->level = 0x1E;	/*30 */
+	aw8624->level = 0xA0; /* 160 */
 	return 0;
 }
 
