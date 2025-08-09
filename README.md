@@ -1,4 +1,4 @@
-# SuperRyzenS™ Sweet (MIUI)
+# SuperRyzenS™
 
 This is a custom kernel for Redmi Note 10 Pro/Pro Max (codename: sweet) designed for MIUI ROMs, based on Linux kernel 4.14.356 with enhanced performance and power efficiency in mind.
 
