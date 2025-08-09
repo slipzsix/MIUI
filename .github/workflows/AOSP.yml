@@ -35,21 +35,29 @@ jobs:
             sed -i 's/qcom,mdss-pan-physical-width-dimension = <695>;$/qcom,mdss-pan-physical-width-dimension = <69>;/' arch/arm64/boot/dts/qcom/dsi-panel-k6-38-0c-0a-fhd-dsc-video.dtsi
             sed -i 's/qcom,mdss-pan-physical-height-dimension = <1546>;$/qcom,mdss-pan-physical-height-dimension = <154>;/' arch/arm64/boot/dts/qcom/dsi-panel-k6-38-0c-0a-fhd-dsc-video.dtsi
                                                                       
-    - name: Build
+    - name: Building Kernel
       run: |
-            export ARCH=arm64
-            export PATH="${PWD}/clang/bin:${PWD}gcc64/bin:${PWD}gcc32/bin:${PATH}"
-            export KBUILD_BUILD_USER=runner
-            export KBUILD_BUILD_HOST=slipzsix
-            export KBUILD_COMPILER_STRING="${PWD}/clang"           
-            export LLVM=1 
-            export LLVM_IAS=1
-            export CLANG_TRIPLE=aarch64-linux-gnu-
-            export CROSS_COMPILE=aarch64-linux-android-
-            export CROSS_COMPILE_ARM32=arm-linux-androideabi-             
-            make O=out vendor/sweet_defconfig 
-            make -j$(nproc --all) O=out CC=clang                   
-            mv out/.config out/sweet_defconfig.txt
+        export ARCH=arm64
+        export PATH="${PWD}/clang/bin:${PWD}gcc64/bin:${PWD}gcc32/bin:${PATH}"
+        export KBUILD_BUILD_USER=usertest
+        export KBUILD_BUILD_HOST=AmbadeuZ
+        export KBUILD_COMPILER_STRING="${PWD}/clang"
+        make O=out ARCH=arm64 sweet_defconfig 
+        make -j$(nproc --all) O=out \
+           ARCH=arm64 \
+           LLVM=1 \
+           LLVM_IAS=1 \
+           AR=llvm-ar \
+           NM=llvm-nm \
+           LD=ld.lld \
+           OBJCOPY=llvm-objcopy \
+           OBJDUMP=llvm-objdump \
+           STRIP=llvm-strip \
+           CC=clang \
+           CROSS_COMPILE=aarch64-linux-gnu- \
+           CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
+           V=1
+        mv out/.config out/sweet_defconfig.txt
            
     - name: Upload defconfig 
       uses: actions/upload-artifact@v4
