@@ -71,19 +71,23 @@ static u32 lowmem_debug_level = 0;
 static short lowmem_adj[6] = {
 	0,
 	1,
+	2,
 	6,
-	12,
+	9,
+	15,
 };
 
-static int lowmem_adj_size = 4;
+static int lowmem_adj_size = 6;
 static int lowmem_minfree[6] = {
-	3 * 512,	/* 6MB */
-	2 * 1024,	/* 8MB */
-	4 * 1024,	/* 16MB */
-	16 * 1024,	/* 64MB */
+	8192,	/* 32MB */
+	12288,	/* 48MB */
+	16384,	/* 64MB */
+	24576,	/* 96MB */
+    32768,  /* 128MB */
+    40960,  /* 160MB */
 };
 
-static int lowmem_minfree_size = 4;
+static int lowmem_minfree_size = 6;
 static int lmk_fast_run = 1;
 
 static unsigned long lowmem_deathpending_timeout;
