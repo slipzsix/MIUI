@@ -1,4 +1,4 @@
-name: build kernel [AOSP]
+name: build [AOSP] SuperRyzenS
 on:
   workflow_dispatch:
 jobs:
