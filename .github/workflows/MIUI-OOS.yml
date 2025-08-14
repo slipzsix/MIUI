@@ -1,4 +1,4 @@
-name: build kernel MIUI SuperRyzenS
+name: build [MIUI] SuperRyzenS
 on:
   workflow_dispatch:
 jobs:
