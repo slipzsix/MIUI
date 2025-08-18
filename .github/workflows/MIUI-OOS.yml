@@ -35,6 +35,10 @@ jobs:
             sed -i 's/qcom,mdss-pan-physical-width-dimension = <69>;$/qcom,mdss-pan-physical-width-dimension = <695>;/' arch/arm64/boot/dts/qcom/dsi-panel-k6-38-0c-0a-fhd-dsc-video.dtsi
             sed -i 's/qcom,mdss-pan-physical-height-dimension = <154>;$/qcom,mdss-pan-physical-height-dimension = <1546>;/' arch/arm64/boot/dts/qcom/dsi-panel-k6-38-0c-0a-fhd-dsc-video.dtsi
                  
+    - name: Clean output
+      run: |
+        rm -rf out
+
     - name: Building Kernel
       run: |
         export ARCH=arm64
@@ -42,6 +46,8 @@ jobs:
         export KBUILD_BUILD_USER=runner
         export KBUILD_BUILD_HOST=slipzsix
         export KBUILD_COMPILER_STRING="${PWD}/clang"
+        export KBUILD_CFLAGS+=" -frandom-seed=1 -fno-randomize-layout"
+        export KBUILD_LDFLAGS+=" -frandom-seed=1"
         make O=out ARCH=arm64 vendor/sweet_defconfig
         make -j$(nproc --all) O=out \
            ARCH=arm64 \
