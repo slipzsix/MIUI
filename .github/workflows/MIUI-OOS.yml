@@ -22,7 +22,7 @@ jobs:
         
     - name: Fetch Toolchains 
       run: |
-            mkdir clang && curl  https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz -RLO && tar -C clang/ -xf clang-*.tar.gz
+            mkdir clang && cd clang && curl -LO "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman" && chmod a+x antman && ./antman -S && ./antman --patch=glibc && cd .. && ls
             git clone https://github.com/greenforce-project/gcc-arm64 -b main --depth=1 gcc64
             git clone https://github.com/greenforce-project/gcc-arm -b main --depth=1 gcc32
                                     
@@ -38,10 +38,10 @@ jobs:
     - name: Build
       run: |
             export ARCH=arm64
-            export PATH="${PWD}/clang/bin:${PWD}gcc64/bin:${PWD}gcc32/bin:${PATH}"
-            export KBUILD_BUILD_USER=buildkernel1
-            export KBUILD_BUILD_HOST=mhddonip
-            export KBUILD_COMPILER_STRING="${PWD}/clang"           
+            export PATH="$CLANG_PATH/bin:$GCC64_PATH/bin:$GCC32_PATH/bin:$PATH"
+            export KBUILD_BUILD_USER=Suffer
+            export KBUILD_BUILD_HOST=slipzsix
+            export KBUILD_COMPILER_STRING="$$CLANG_PATH/clang"      
             export LLVM=1 
             export LLVM_IAS=1
             export CLANG_TRIPLE=aarch64-linux-gnu-
@@ -73,5 +73,5 @@ jobs:
     - name: Upload Kernel
       uses: actions/upload-artifact@v4
       with:
-        name: STRIX-Interstellar-MIUI-OOS-${{ env.BUILD_TIME }}
+        name: SuperRyzenS-MIUI-OS-${{ env.BUILD_TIME }}
         path: AnyKernel3/*
