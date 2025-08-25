@@ -284,6 +284,9 @@ KERNELRELEASE = $(shell cat include/config/kernel.release 2> /dev/null)
 KERNELVERSION = 5$(if 4,.4$(if 294,.294))
 export VERSION PATCHLEVEL SUBLEVEL KERNELRELEASE KERNELVERSION
 
+KBUILD_COMPILER_STRING := Google Gaming clang 24.0.3 Paradox, Monster LLD 24.0.3 Playground Engine, Optimization LTO+ PGO+ MLGO+ BOLT+ Performance 03 Suffocation
+export KBUILD_COMPILER_STRING
+
 # SUBARCH tells the usermode build what the underlying arch is.  That is set
 # first, and if a usermode build is happening, the "ARCH=um" on the command
 # line overrides the setting of ARCH below.  If a native build is happening,
