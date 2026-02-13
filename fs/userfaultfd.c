@@ -473,9 +473,9 @@ int handle_userfault(struct vm_fault *vmf, unsigned long reason)
 	uwq.ctx = ctx;
 	uwq.waken = false;
 
-	return_to_userland = vmf->flags & FAULT_FLAG_INTERRUPTIBLE;
-	blocking_state = return_to_userland ? TASK_INTERRUPTIBLE :
-			 TASK_KILLABLE;
+    	return_to_userland = 0;
+    	blocking_state = TASK_INTERRUPTIBLE;
+
 
 	spin_lock_irq(&ctx->fault_pending_wqh.lock);
 	/*
