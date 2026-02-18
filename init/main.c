@@ -105,13 +105,25 @@ static int kernel_init(void *);
 extern void init_IRQ(void);
 extern void radix_tree_init(void);
 
+/* Camera Timestamp Switch */
+bool is_legacy_timestamp = false;
+EXPORT_SYMBOL(is_legacy_timestamp);
+
+static int __init read_is_legacy_timestamp(char *s)
+{
+	strtobool(s, &is_legacy_timestamp);
+	return 1;
+}
+__setup("init.is_legacy_timestamp=", read_is_legacy_timestamp);
+
+/* eBPF Switch */
 bool is_legacy_ebpf = false;
 EXPORT_SYMBOL(is_legacy_ebpf);
 
 static int __init read_is_legacy_ebpf(char *s)
 {
-    strtobool(s, &is_legacy_ebpf);
-    return 1;
+	strtobool(s, &is_legacy_ebpf);
+	return 1;
 }
 __setup("init.is_legacy_ebpf=", read_is_legacy_ebpf);
 
