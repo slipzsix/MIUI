@@ -2202,7 +2202,7 @@ static int f2fs_ioc_abort_atomic_write(struct file *filp)
 		return ret;
 
 	inode_lock(inode);
-
+	
 	f2fs_abort_atomic_write(inode, true);
 
 	inode_unlock(inode);
