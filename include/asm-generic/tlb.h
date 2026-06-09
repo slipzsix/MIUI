@@ -232,10 +232,10 @@ static inline void tlb_remove_check_page_size_change(struct mmu_gather *tlb,
 		__tlb_remove_tlb_entry(tlb, ptep, address);	\
 	} while (0)
 
-#define tlb_remove_huge_tlb_entry(h, tlb, ptep, address)	     \
-	do {							     \
+#define tlb_remove_huge_tlb_entry(h, tlb, ptep, address)             \
+	do {                                                         \
 		__tlb_adjust_range(tlb, address, huge_page_size(h)); \
-		__tlb_remove_tlb_entry(tlb, ptep, address);	     \
+		__tlb_remove_tlb_entry(tlb, ptep, address);          \
 	} while (0)
 
 /**
@@ -312,6 +312,8 @@ static inline void tlb_remove_check_page_size_change(struct mmu_gather *tlb,
 	} while (0)
 #endif
 
-#define tlb_migrate_finish(mm) do {} while (0)
+#endif /* CONFIG_MMU */
+
+#define tlb_migrate_finish(mm) ((void)0)
 
 #endif /* _ASM_GENERIC__TLB_H */
