@@ -12716,6 +12716,17 @@ static unsigned int get_rr_interval_fair(struct rq *rq, struct task_struct *task
 	return rr_interval;
 }
 
+#ifdef CONFIG_SCHED_CASS
+#include "cass.c"
+
+/* Use CASS. A dummy wrapper ensures the replaced function is still "used". */
+static inline void *select_task_rq_fair_dummy(void)
+{
+	return (void *)select_task_rq_fair;
+}
+#define select_task_rq_fair cass_select_task_rq_fair
+#endif /* CONFIG_SCHED_CASS */
+
 /*
  * All the scheduling class methods:
  */
@@ -12929,7 +12940,7 @@ static void walt_fixup_nr_big_tasks(struct rq *rq, struct task_struct *p,
 	if (!se)
 		walt_adjust_nr_big_tasks(rq, delta, inc);
 }
-
+#ifdef CONFIG_SCHED_WALT
 /*
  * Check if task is part of a hierarchy where some cfs_rq does not have any
  * runtime left.
@@ -12956,6 +12967,7 @@ static int task_will_be_throttled(struct task_struct *p)
 
 	return 0;
 }
+#endif /* bye walt */
 
 #else /* CONFIG_CFS_BANDWIDTH */
 
@@ -12972,11 +12984,12 @@ static void walt_fixup_nr_big_tasks(struct rq *rq, struct task_struct *p,
 {
 	walt_adjust_nr_big_tasks(rq, delta, inc);
 }
-
+#ifdef CONFIG_SCHED_WALT
 static int task_will_be_throttled(struct task_struct *p)
 {
 	return false;
 }
+#endif /* bye walt */
 
 #endif /* CONFIG_CFS_BANDWIDTH */
 
@@ -13036,6 +13049,7 @@ void walt_rotate_work_init(void)
 	}
 }
 
+#ifdef CONFIG_SCHED_WALT
 #define WALT_ROTATION_THRESHOLD_NS	16000000
 static void walt_check_for_rotation(struct rq *src_rq)
 {
@@ -13170,5 +13184,7 @@ void check_for_migration(struct rq *rq, struct task_struct *p)
 		raw_spin_unlock(&migration_lock);
 	}
 }
+
+#endif /* bye walt */
 
 #endif /* CONFIG_SCHED_WALT */
