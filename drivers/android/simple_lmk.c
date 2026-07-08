@@ -458,7 +458,8 @@ void simple_lmk_mm_freed(struct mm_struct *mm)
 
 void simple_lmk_trigger(void)
 {
-	atomic_set(&needs_reclaim, 1);
+	if (atomic_cmpxchg(&needs_reclaim, 0, 1))
+		return;
 	smp_mb__after_atomic();
 	if (waitqueue_active(&oom_waitq))
 		wake_up(&oom_waitq);
@@ -467,9 +468,8 @@ void simple_lmk_trigger(void)
 static int simple_lmk_vmpressure_cb(struct notifier_block *nb,
 				    unsigned long pressure, void *data)
 {
-	if (pressure >= 98) {
+	if (pressure >= 99)
 		simple_lmk_trigger();
-	}
 
 	return NOTIFY_OK;
 }
