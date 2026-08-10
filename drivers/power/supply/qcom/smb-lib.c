@@ -32,6 +32,8 @@
 #define smblib_dbg(chg, reason, fmt, ...)			\
     do { } while (0)
 
+#include <linux/printk_disable_msg.h>
+
 static bool is_secure(struct smb_charger *chg, int addr)
 {
 	if (addr == SHIP_MODE_REG || addr == FREQ_CLK_DIV_REG)
