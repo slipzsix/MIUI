@@ -3434,14 +3434,58 @@ CFLAGS_wlan_hdd_main.o += -DBUILD_TAG=\"$(BUILD_TAG)\"
 endif
 
 # Module information used by KBuild framework
+ifeq ($(CONFIG_QCA_CLD_WLAN),y)
+
+OBJS_1 := $(wordlist 1, 300, $(OBJS))
+OBJS_2 := $(wordlist 301, 600, $(OBJS))
+OBJS_3 := $(wordlist 601, 900, $(OBJS))
+OBJS_4 := $(wordlist 901, 1200, $(OBJS))
+OBJS_5 := $(wordlist 1201, 1500, $(OBJS))
+OBJS_6 := $(wordlist 1501, 1800, $(OBJS))
+OBJS_7 := $(wordlist 1801, 2100, $(OBJS))
+OBJS_8 := $(wordlist 2101, 5000, $(OBJS))
+
+ifneq ($(OBJS_1),)
+obj-y += wlan_part1.o
+wlan_part1-y := $(OBJS_1)
+endif
+
+ifneq ($(OBJS_2),)
+obj-y += wlan_part2.o
+wlan_part2-y := $(OBJS_2)
+endif
+
+ifneq ($(OBJS_3),)
+obj-y += wlan_part3.o
+wlan_part3-y := $(OBJS_3)
+endif
+
+ifneq ($(OBJS_4),)
+obj-y += wlan_part4.o
+wlan_part4-y := $(OBJS_4)
+endif
+
+ifneq ($(OBJS_5),)
+obj-y += wlan_part5.o
+wlan_part5-y := $(OBJS_5)
+endif
+
+ifneq ($(OBJS_6),)
+obj-y += wlan_part6.o
+wlan_part6-y := $(OBJS_6)
+endif
+
+ifneq ($(OBJS_7),)
+obj-y += wlan_part7.o
+wlan_part7-y := $(OBJS_7)
+endif
+
+ifneq ($(OBJS_8),)
+obj-y += wlan_part8.o
+wlan_part8-y := $(OBJS_8)
+endif
+
+else
 obj-$(CONFIG_QCA_CLD_WLAN) += $(MODNAME).o
 $(MODNAME)-y := $(OBJS)
-OBJS_DIRS := $(dir $(OBJS)) \
-	     $(WLAN_COMMON_ROOT)/$(HIF_CE_DIR)/ \
-	     $(QDF_OBJ_DIR)/ \
-	     $(WLAN_COMMON_ROOT)/$(HIF_PCIE_DIR)/ \
-	     $(WLAN_COMMON_ROOT)/$(HIF_SNOC_DIR)/ \
-	     $(WLAN_COMMON_ROOT)/$(HIF_SDIO_DIR)/
-CLEAN_DIRS := $(addsuffix *.o,$(sort $(OBJS_DIRS))) \
-	      $(addsuffix .*.o.cmd,$(sort $(OBJS_DIRS)))
-clean-files := $(CLEAN_DIRS)
+endif
