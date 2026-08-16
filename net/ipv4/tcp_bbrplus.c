@@ -63,6 +63,15 @@
 #include <linux/random.h>
 #include <linux/win_minmax.h>
 
+static u32 tcp_tso_autosize(const struct sock *sk, unsigned int mss_now,
+			    int min_segs)
+{
+	u32 bytes = min_t(u32, sk->sk_pacing_rate >> 10,
+			  sk->sk_gso_max_size);
+
+	return max_t(u32, bytes / mss_now, min_segs);
+}
+
 /* Scale factor for rate in pkt/uSec unit to avoid truncation in bandwidth
  * estimation. The rate unit ~= (1500 bytes / 1 usec / 2^24) ~= 715 bps.
  * This handles bandwidths from 0.06pps (715bps) to 256Mpps (3Tbps) in a u32.
@@ -1160,7 +1169,6 @@ static struct tcp_congestion_ops tcp_bbr_cong_ops __read_mostly = {
     .undo_cwnd  = bbr_undo_cwnd,
     .cwnd_event = bbr_cwnd_event,
     .ssthresh   = bbr_ssthresh,
-    .tso_segs_goal  = bbr_tso_segs_goal,
     .get_info   = bbr_get_info,
     .set_state  = bbr_set_state,
 };
