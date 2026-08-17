@@ -42,6 +42,20 @@ jobs:
             sed -i 's/qcom,mdss-pan-physical-width-dimension = <695>;$/qcom,mdss-pan-physical-width-dimension = <69>;/' arch/arm64/boot/dts/qcom/dsi-panel-k6-38-0c-0a-fhd-dsc-video.dtsi
             sed -i 's/qcom,mdss-pan-physical-height-dimension = <1546>;$/qcom,mdss-pan-physical-height-dimension = <154>;/' arch/arm64/boot/dts/qcom/dsi-panel-k6-38-0c-0a-fhd-dsc-video.dtsi
     
+    - name: 📥 Fetch External Wireless Firmwares
+      run: |
+            mkdir -p firmware
+            curl -f -sSL -o firmware/htc_9271.fw "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/plain/htc_9271.fw"
+            curl -f -sSL -o firmware/rtl8188eufw.bin "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/plain/rtlwifi/rtl8188eufw.bin"
+            cp firmware/htc_9271.fw firmware/htc_9271-1.4.0.fw
+            
+            # Duplicate to the output directory (out/) for O=out needs
+            mkdir -p out/firmware
+            cp -r firmware/* out/firmware/
+            
+            echo "=== FIRMWARE FOLDER CONTENTS ==="
+            ls -lh firmware/
+
     - name: ♻️ Build 🦊SUperRyzeNS
       run: |
            export ARCH=arm64
@@ -49,13 +63,49 @@ jobs:
            export KBUILD_BUILD_USER=slipz
            export KBUILD_BUILD_HOST=SIX
            export KBUILD_COMPILER_STRING="$CLANG_PATH/clang"
+           
            make O=out vendor/sweet_defconfig
+           
+           # 1. Inject external Wi-Fi firmware
+           scripts/config --file out/.config --set-str CONFIG_EXTRA_FIRMWARE "htc_9271.fw htc_9271-1.4.0.fw rtl8188eufw.bin"
+           scripts/config --file out/.config --set-str CONFIG_EXTRA_FIRMWARE_DIR "$GITHUB_WORKSPACE/firmware"
+           
+           # 2. Fix KernelSU-Next module support
+           scripts/config --file out/.config --enable CONFIG_KSU
+           scripts/config --file out/.config --enable CONFIG_OVERLAY_FS
+           scripts/config --file out/.config --enable CONFIG_TMPFS_XATTR
+           scripts/config --file out/.config --enable CONFIG_TMPFS_POSIX_ACL
+           
+           # Verify that the config was applied successfully.
+           echo "=== VERIFY FIRMWARE CONFIG & KSU ==="
+           grep "CONFIG_EXTRA_FIRMWARE" out/.config
+           grep -E "CONFIG_KSU|CONFIG_OVERLAY_FS" out/.config
+           
            make -j$(nproc --all) O=out ARCH=arm64 LLVM=1 LLVM_IAS=1 \
              CC=clang \
              CLANG_TRIPLE=aarch64-linux-gnu- \
              CROSS_COMPILE=$GCC64_PATH/bin/aarch64-elf- \
              CROSS_COMPILE_ARM32=$GCC32_PATH/bin/arm-eabi-
+             
            mv out/.config out/sweet_defconfig.txt
+
+    - name: 📊 Check Driver & Kernel Size
+      run: |
+           export PATH="$CLANG_PATH/bin:$PATH"
+           echo "=========================================="
+           echo "          SIZE OF DRIVER WIRELESS           "
+           echo "=========================================="
+           find out/drivers/net/wireless/ -name "*.o" -exec llvm-size {} + 2>/dev/null || true
+
+           echo "=========================================="
+           echo "        ALL SIZE OF DRIVER WIRELESS        "
+           echo "=========================================="
+           du -sh out/drivers/net/wireless/
+
+           echo "=========================================="
+           echo "          SIZE KERNEL IMAGE BUILD          "
+           echo "=========================================="
+           ls -lh out/arch/arm64/boot/Image*
            
     - name: 📩 Upload defconfig 
       uses: actions/upload-artifact@v4
@@ -70,12 +120,12 @@ jobs:
            cp out/arch/arm64/boot/dtbo.img AnyKernel3/dtbo.img
            cp out/arch/arm64/boot/dtb.img AnyKernel3/dtb.img
            cd AnyKernel3
-           zip -r "../SUperRyzeNS-AOSP-${{ env.BUILD_TIME }}.zip" *
+           zip -r "../SR-Net.Reaper-AOSP-${{ env.BUILD_TIME }}.zip" *
                     
     - name: 📩 Upload Kernel
       uses: actions/upload-artifact@v4
       with:
-        name: SUperRyzeNS-AOSP-${{ env.BUILD_TIME }}
+        name: SR-Net.Reaper-AOSP-${{ env.BUILD_TIME }}
         path: AnyKernel3/*
 
     - name: 💌 Sending to zeNS Telegram Bot
@@ -83,7 +133,7 @@ jobs:
       run: |
         cd AnyKernel3
 
-        ZIP_NAME=SUperRyzeNS-AOSP-${{ env.BUILD_TIME }}.zip
+        ZIP_NAME=SR-Net.Reaper-AOSP-${{ env.BUILD_TIME }}.zip
         zip -r9 "$ZIP_NAME" ./*
 
         CAPTION="✅ <b>Kernel Build Success</b>
