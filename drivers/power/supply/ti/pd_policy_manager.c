@@ -139,9 +139,7 @@ static int pd_get_batt_current_thermal_level(struct usbpd_pm *pdpm, int *level)
 	return rc;
 }
 
-
 /* get capacity from battery power supply property */
-
 static int pd_get_batt_capacity(struct usbpd_pm *pdpm, int *capacity)
 {
 	union power_supply_propval pval = {0,};
@@ -155,13 +153,11 @@ static int pd_get_batt_capacity(struct usbpd_pm *pdpm, int *capacity)
 	rc = power_supply_get_property(pdpm->sw_psy,
 				POWER_SUPPLY_PROP_CAPACITY, &pval);
 	if (rc < 0) {
-
 		pr_info("Couldn't get battery capacity:%d\n", rc);
 		return rc;
 	}
 
 	pr_info("battery capacity is : %d\n", pval.intval);
-
 
 	*capacity = pval.intval;
 	return rc;
@@ -342,41 +338,39 @@ static int usbpd_set_new_fcc_voter(struct usbpd_pm *pdpm)
 
 static void usbpd_check_cp_psy(struct usbpd_pm *pdpm)
 {
+	const char *cp_psy_names[] = {
+		"bq2597x-master",
+		"bq2597x-standalone",
+		"ln8000",
+		NULL
+	};
+	int retries = 3;
+	int i;
 
-    const char *cp_psy_names[] = {
-        "bq2597x-master",
-        "bq2597x-standalone",
-        "ln8000",
-        NULL
-    };
-    int retries = 3;
-    int i;
+	if (pdpm->cp_psy) {
+		pr_info("cp_psy already set: %s\n", pdpm->cp_psy->desc->name);
+		return;
+	}
 
-    if (pdpm->cp_psy) {
-        pr_info("cp_psy already set: %s\n", pdpm->cp_psy->desc->name);
-        return;
-    }
+	while (retries--) {
+		for (i = 0; cp_psy_names[i]; i++) {
+			pr_info("Searching for cp_psy: %s\n", cp_psy_names[i]);
+			pdpm->cp_psy = power_supply_get_by_name(cp_psy_names[i]);
+			if (pdpm->cp_psy) {
+				pr_info("Found cp_psy: %s\n", cp_psy_names[i]);
+				return;
+			}
+		}
 
-    while (retries--) {
-        for (i = 0; cp_psy_names[i]; i++) {
-            pr_info("Searching for cp_psy: %s\n", cp_psy_names[i]);
-            pdpm->cp_psy = power_supply_get_by_name(cp_psy_names[i]);
-            if (pdpm->cp_psy) {
-                pr_info("Found cp_psy: %s\n", cp_psy_names[i]);
-                return;
-            }
-        }
+		if (!pdpm->cp_psy) {
+			pr_info("cp_psy not found, retrying... (%d retries left)\n", retries);
+			msleep(100);
+		}
+	}
 
-        if (!pdpm->cp_psy) {
-            pr_info("cp_psy not found, retrying... (%d retries left)\n", retries);
-            msleep(100);
-        }
-    }
-
-    if (!pdpm->cp_psy) {
-        pr_err("cp_psy not found after retries\n");
-    }
-
+	if (!pdpm->cp_psy) {
+		pr_err("cp_psy not found after retries\n");
+	}
 }
 
 static void usbpd_check_cp_sec_psy(struct usbpd_pm *pdpm)
@@ -1074,9 +1068,6 @@ static int usbpd_pm_sm(struct usbpd_pm *pdpm)
 		pd_get_batt_current_thermal_level(pdpm, &thermal_level);
 		pdpm->is_temp_out_fc2_range = pd_disable_cp_by_jeita_status(pdpm);
 		pr_debug("is_temp_out_fc2_range:%d\n", pdpm->is_temp_out_fc2_range);
-
-		if (ln8000_is_valid)
-			pd_get_batt_capacity(pdpm, &capacity);
 
 		pd_get_batt_capacity(pdpm, &capacity);
 		effective_fcc_val = usbpd_get_effective_fcc_val(pdpm);

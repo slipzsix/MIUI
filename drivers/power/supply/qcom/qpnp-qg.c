@@ -2159,12 +2159,12 @@ static int qg_get_ffc_iterm_for_qg(struct qpnp_qg *chip)
 		}
 	} else {
 #ifdef CONFIG_K6_CHARGE
-		if (is_batt_vendor_nvt){
+		if (is_batt_vendor_nvt) {
 			ffc_full_current = FFC_BATT_FULL_NVT_CURRENT;
-			pr_err("ffc_FULL_current nvt is 925\n", rc);
-		}else{
+			pr_err("ffc_FULL_current nvt is 925\n");
+		} else {
 			ffc_full_current = FFC_BATT_FULL_SWD_CURRENT;
-			pr_err("ffc_FULL_current swd is 880\n", rc);
+			pr_err("ffc_FULL_current swd is 880\n");
 		}
 #else
 		ffc_full_current = FFC_BATT_FULL_CURRENT;
