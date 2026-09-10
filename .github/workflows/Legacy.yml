@@ -42,6 +42,10 @@ jobs:
             sed -i 's/qcom,mdss-pan-physical-width-dimension = <69>;$/qcom,mdss-pan-physical-width-dimension = <695>;/' arch/arm64/boot/dts/qcom/dsi-panel-k6-38-0c-0a-fhd-dsc-video.dtsi
             sed -i 's/qcom,mdss-pan-physical-height-dimension = <154>;$/qcom,mdss-pan-physical-height-dimension = <1546>;/' arch/arm64/boot/dts/qcom/dsi-panel-k6-38-0c-0a-fhd-dsc-video.dtsi
     
+    - name: 🛡️ Apply NoMount
+      run: |
+            curl -LSs "https://raw.githubusercontent.com/maxsteeel/nomount/refs/heads/dev/kernel/setup.sh" | bash -s master
+    
     - name: ♻️ Build 🦊SUperRyzeNS
       run: |
            export ARCH=arm64
@@ -65,7 +69,7 @@ jobs:
 
     - name: ♻️ Fetch AnyKernel3
       run: |
-           git clone --depth=1 https://github.com/slipzryzens/anykernel3 -b main AnyKernel3  
+           git clone --depth=1 https://github.com/slipzryzens/anykernel3 -b dynamic AnyKernel3  
            cp out/arch/arm64/boot/Image.gz AnyKernel3/Image.gz
            cp out/arch/arm64/boot/dtbo.img AnyKernel3/dtbo.img
            cp out/arch/arm64/boot/dtb.img AnyKernel3/dtb.img
