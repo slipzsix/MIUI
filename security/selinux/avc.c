@@ -128,7 +128,7 @@ static inline int avc_hash(u32 ssid, u32 tsid, u16 tclass)
 {
 	return (ssid ^ (tsid<<2) ^ (tclass<<4)) & (AVC_CACHE_SLOTS - 1);
 }
-#ifdef CONFIG_AUDIT
+
 /**
  * avc_dump_av - Display an access vector in human-readable form.
  * @tclass: target security class
@@ -197,7 +197,6 @@ static void avc_dump_query(struct audit_buffer *ab, struct selinux_state *state,
 	BUG_ON(!tclass || tclass >= ARRAY_SIZE(secclass_map));
 	audit_log_format(ab, " tclass=%s", secclass_map[tclass-1].name);
 }
-#endif
 
 /**
  * avc_init - Initialize the AVC.
@@ -491,7 +490,6 @@ static inline int avc_xperms_audit(struct selinux_state *state,
 				   u8 perm, int result,
 				   struct common_audit_data *ad)
 {
-#ifdef CONFIG_AUDIT
 	u32 audited, denied;
 
 	audited = avc_xperms_audit_required(
@@ -500,9 +498,6 @@ static inline int avc_xperms_audit(struct selinux_state *state,
 		return 0;
 	return slow_avc_audit(state, ssid, tsid, tclass, requested,
 			audited, denied, result, ad, 0);
-#else
-	return 0;
-#endif
 }
 
 static void avc_node_free(struct rcu_head *rhead)
@@ -656,7 +651,7 @@ static int avc_latest_notif_update(struct selinux_avc *avc,
 	spin_lock_irqsave(&notif_lock, flag);
 	if (is_insert) {
 		if (seqno < avc->avc_cache.latest_notif) {
-			pr_debug("SELinux: avc:  seqno %d < latest_notif %d\n",
+			printk(KERN_WARNING "SELinux: avc:  seqno %d < latest_notif %d\n",
 			       seqno, avc->avc_cache.latest_notif);
 			ret = -EAGAIN;
 		}
@@ -730,7 +725,6 @@ found:
 	return node;
 }
 
-#ifdef CONFIG_AUDIT
 /**
  * avc_audit_pre_callback - SELinux specific information
  * will be called by generic audit code
@@ -740,7 +734,8 @@ found:
 static void avc_audit_pre_callback(struct audit_buffer *ab, void *a)
 {
 	struct common_audit_data *ad = a;
-	audit_log_format(ab, "avc:  denied ");
+	audit_log_format(ab, "avc:  %s ",
+			 ad->selinux_audit_data->denied ? "denied" : "granted");
 	avc_dump_av(ab, ad->selinux_audit_data->tclass,
 			ad->selinux_audit_data->audited);
 	audit_log_format(ab, " for ");
@@ -760,10 +755,11 @@ static void avc_audit_post_callback(struct audit_buffer *ab, void *a)
 		       ad->selinux_audit_data->ssid,
 		       ad->selinux_audit_data->tsid,
 		       ad->selinux_audit_data->tclass);
-	audit_log_format(ab, " permissive=%u",
-			 ad->selinux_audit_data->result ? 0 : 1);
+	if (ad->selinux_audit_data->denied) {
+		audit_log_format(ab, " permissive=%u",
+				 ad->selinux_audit_data->result ? 0 : 1);
+	}
 }
-
 
 /* This is the slow part of avc audit with big stack footprint */
 noinline int slow_avc_audit(struct selinux_state *state,
@@ -774,9 +770,6 @@ noinline int slow_avc_audit(struct selinux_state *state,
 {
 	struct common_audit_data stack_data;
 	struct selinux_audit_data sad;
-
-	if (!denied)
-		return 0;
 
 	if (!a) {
 		a = &stack_data;
@@ -799,6 +792,7 @@ noinline int slow_avc_audit(struct selinux_state *state,
 	sad.ssid = ssid;
 	sad.tsid = tsid;
 	sad.audited = audited;
+	sad.denied = denied;
 	sad.result = result;
 	sad.state = state;
 
@@ -807,7 +801,6 @@ noinline int slow_avc_audit(struct selinux_state *state,
 	common_lsm_audit(a, avc_audit_pre_callback, avc_audit_post_callback);
 	return 0;
 }
-#endif
 
 /**
  * avc_add_callback - Register a callback for security events.
