@@ -203,7 +203,7 @@ static void set_task_rt_prio(struct task_struct *tsk, int priority)
 	sched_setscheduler_nocheck(tsk, SCHED_RR, &rt_prio);
 }
 
-#define SLEEP_DURATION_MS 35
+#define SLEEP_DURATION_MS 30
 
 static void scan_and_kill(void)
 {
