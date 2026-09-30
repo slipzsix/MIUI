@@ -992,6 +992,43 @@ out:
 }
 
 /*
+ * For single-queue blk-mq devices, use the configured default scheduler.
+ * If the configured scheduler is unavailable, fall back to mq-deadline.
+ */
+int elevator_init_mq(struct request_queue *q)
+{
+	struct elevator_type *e;
+	const char *default_mq_iosched = CONFIG_DEFAULT_MQ_IOSCHED;
+	int err = 0;
+
+	if (q->tag_set && q->tag_set->flags & BLK_MQ_F_NO_SCHED_BY_DEFAULT)
+		return 0;
+
+	if (q->nr_hw_queues != 1)
+		return 0;
+
+	WARN_ON_ONCE(test_bit(QUEUE_FLAG_REGISTERED, &q->queue_flags));
+
+	if (unlikely(q->elevator))
+		goto out;
+
+	e = NULL;
+	if (*default_mq_iosched)
+		e = elevator_get(q, default_mq_iosched, false);
+	if (!e && *default_mq_iosched)
+		e = elevator_get(q, "mq-deadline", false);
+	if (!e)
+		goto out;
+
+	err = blk_mq_init_sched(q, e);
+	if (err)
+		elevator_put(e);
+out:
+	return err;
+}
+
+
+/*
  * switch to new_e io scheduler. be careful not to introduce deadlocks -
  * we don't free the old io scheduler, before we have allocated what we
  * need for the new one. this way we have a chance of going back to the old
