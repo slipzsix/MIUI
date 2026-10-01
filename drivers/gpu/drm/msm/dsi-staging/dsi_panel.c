@@ -4684,6 +4684,48 @@ int dsi_panel_drv_deinit(struct dsi_panel *panel)
 	return rc;
 }
 
+#ifdef CONFIG_MACH_XIAOMI_SWEET
+void dsi_panel_gamma_mode_change(struct dsi_panel *panel,
+			struct dsi_display_mode *adj_mode)
+{
+	u32 count = 0;
+	int rc = 0;
+	struct dsi_display_mode *cur_mode = panel->cur_mode;
+
+	mutex_lock(&panel->panel_lock);
+	if (!panel->panel_initialized || !adj_mode || !cur_mode) {
+		pr_err("Invalid params\n");
+		goto exit;
+	}
+
+	count = cur_mode->priv_info->cmd_sets[DSI_CMD_SET_DISP_BC_120HZ].count;
+	if (!count)
+		goto exit;
+
+	switch (adj_mode->timing.refresh_rate) {
+	case 120:
+		rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_DISP_BC_120HZ);
+		break;
+	case 90:
+	case 60:
+		rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_DISP_BC_60HZ);
+		break;
+	default:
+		break;
+	}
+
+	if (rc)
+		pr_err("%s: send cmds failed...", __func__);
+	else
+		pr_info("%s: refresh_rate[%d]\n", __func__, adj_mode->timing.refresh_rate);
+
+exit:
+	mutex_unlock(&panel->panel_lock);
+
+	return;
+}
+#endif
+
 int dsi_panel_validate_mode(struct dsi_panel *panel,
 			    struct dsi_display_mode *mode)
 {
