@@ -470,5 +470,8 @@ int dsi_panel_set_thermal_hbm_disabled(struct dsi_panel *panel,
 				bool thermal_hbm_disabled);
 int dsi_panel_get_thermal_hbm_disabled(struct dsi_panel *panel,
 				bool *thermal_hbm_disabled);
+				
+void dsi_panel_gamma_mode_change(struct dsi_panel *panel,
+				 struct dsi_display_mode *adj_mode);
 
 #endif /* _DSI_PANEL_H_ */
