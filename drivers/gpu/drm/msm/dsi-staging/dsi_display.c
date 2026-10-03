@@ -7246,9 +7246,10 @@ int dsi_display_set_mode(struct dsi_display *display,
 	}
 
 #ifdef CONFIG_MACH_XIAOMI_SWEET
-	if (adj_mode.timing.refresh_rate == 60 ||
-	    adj_mode.timing.refresh_rate == 90)
-		dsi_panel_gamma_mode_change(display->panel, &adj_mode);
+    if (adj_mode.timing.refresh_rate == 60 ||
+        adj_mode.timing.refresh_rate == 90 ||
+        adj_mode.timing.refresh_rate == 120)
+        dsi_panel_gamma_mode_change(display->panel, &adj_mode);
 #endif
 
 	if (!display->panel->cur_mode) {
