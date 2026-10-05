@@ -30,6 +30,20 @@
 #include "blk-mq-sched.h"
 #include "blk-mq-tag.h"
 
+#include <linux/slab.h>
+
+/* Helper compatibility 4.14 kernel */
+static inline void *kmalloc_array_node(size_t n, size_t size, gfp_t flags, int node)
+{
+	if (size != 0 && n > SIZE_MAX / size)
+		return NULL;
+	return kmalloc_node(n * size, flags, node);
+}
+
+#ifndef timer_reduce
+#define timer_reduce(timer, expires) mod_timer(timer, expires)
+#endif
+
 /*
  * Scheduling domains: the device is divided into multiple domains based on the
  * request type.
@@ -69,9 +83,9 @@ static const unsigned int kyber_depth[] = {
  * Default latency targets for each scheduling domain.
  */
 static const u64 kyber_latency_targets[] = {
-	[KYBER_READ] = 2 * NSEC_PER_MSEC,
-	[KYBER_WRITE] = 10 * NSEC_PER_MSEC,
-	[KYBER_DISCARD] = 5 * NSEC_PER_SEC,
+	[KYBER_READ] = 2ULL * NSEC_PER_MSEC,
+	[KYBER_WRITE] = 10ULL * NSEC_PER_MSEC,
+	[KYBER_DISCARD] = 5ULL * NSEC_PER_SEC,
 };
 
 /*
@@ -441,7 +455,6 @@ static void kyber_ctx_queue_init(struct kyber_ctx_queue *kcq)
 
 static int kyber_init_hctx(struct blk_mq_hw_ctx *hctx, unsigned int hctx_idx)
 {
-	struct kyber_queue_data *kqd = hctx->queue->elevator->elevator_data;
 	struct kyber_hctx_data *khd;
 	int i;
 
@@ -449,9 +462,8 @@ static int kyber_init_hctx(struct blk_mq_hw_ctx *hctx, unsigned int hctx_idx)
 	if (!khd)
 		return -ENOMEM;
 
-	khd->kcqs = kmalloc_array_node(hctx->nr_ctx,
-				       sizeof(struct kyber_ctx_queue),
-				       GFP_KERNEL, hctx->numa_node);
+	khd->kcqs = kmalloc_node(hctx->nr_ctx * sizeof(struct kyber_ctx_queue),
+                         GFP_KERNEL, hctx->numa_node);
 	if (!khd->kcqs)
 		goto err_khd;
 
@@ -479,8 +491,6 @@ static int kyber_init_hctx(struct blk_mq_hw_ctx *hctx, unsigned int hctx_idx)
 	khd->batching = 0;
 
 	hctx->sched_data = khd;
-	sbitmap_queue_min_shallow_depth(&hctx->sched_tags->bitmap_tags,
-					kqd->async_depth);
 
 	return 0;
 
@@ -539,6 +549,45 @@ static void kyber_limit_depth(unsigned int op, struct blk_mq_alloc_data *data)
 	}
 }
 
+static bool kyber_bio_list_merge(struct request_queue *q,
+				 struct list_head *list,
+				 struct bio *bio)
+{
+	struct request *rq;
+	int checked = 8;
+
+	list_for_each_entry_reverse(rq, list, queuelist) {
+		bool merged = false;
+
+		if (!checked--)
+			break;
+
+		if (!blk_rq_merge_ok(rq, bio))
+			continue;
+
+		switch (blk_try_merge(rq, bio)) {
+		case ELEVATOR_BACK_MERGE:
+			if (blk_mq_sched_allow_merge(q, rq, bio))
+				merged = bio_attempt_back_merge(q, rq, bio);
+			break;
+		case ELEVATOR_FRONT_MERGE:
+			if (blk_mq_sched_allow_merge(q, rq, bio))
+				merged = bio_attempt_front_merge(q, rq, bio);
+			break;
+		case ELEVATOR_DISCARD_MERGE:
+			merged = bio_attempt_discard_merge(q, rq, bio);
+			break;
+		default:
+			continue;
+		}
+
+		if (merged)
+			return true;
+	}
+
+	return false;
+}
+
 static bool kyber_bio_merge(struct blk_mq_hw_ctx *hctx, struct bio *bio)
 {
 	struct kyber_hctx_data *khd = hctx->sched_data;
@@ -549,7 +598,7 @@ static bool kyber_bio_merge(struct blk_mq_hw_ctx *hctx, struct bio *bio)
 	bool merged;
 
 	spin_lock(&kcq->lock);
-	merged = blk_mq_bio_list_merge(hctx->queue, rq_list, bio);
+	merged = kyber_bio_list_merge(hctx->queue, rq_list, bio);
 	spin_unlock(&kcq->lock);
 	blk_mq_put_ctx(ctx);
 
@@ -609,17 +658,18 @@ static void add_latency_sample(struct kyber_cpu_latency *cpu_latency,
 	atomic_inc(&cpu_latency->buckets[sched_domain][type][bucket]);
 }
 
-static void kyber_completed_request(struct request *rq, u64 now)
+static void kyber_completed_request(struct request *rq)
 {
 	struct kyber_queue_data *kqd = rq->q->elevator->elevator_data;
 	struct kyber_cpu_latency *cpu_latency;
 	unsigned int sched_domain;
-	u64 target;
+	u64 target, now;
 
 	sched_domain = kyber_sched_domain(rq->cmd_flags);
 	if (sched_domain == KYBER_OTHER)
 		return;
 
+	now = ktime_get_ns();
 	cpu_latency = get_cpu_ptr(kqd->cpu_latency);
 	target = kqd->latency_targets[sched_domain];
 	add_latency_sample(cpu_latency, sched_domain, KYBER_TOTAL_LATENCY,
@@ -628,7 +678,7 @@ static void kyber_completed_request(struct request *rq, u64 now)
 			   now - rq->io_start_time_ns);
 	put_cpu_ptr(kqd->cpu_latency);
 
-	timer_reduce(&kqd->timer, jiffies + HZ / 10);
+	mod_timer(&kqd->timer, jiffies + HZ / 10);
 }
 
 struct flush_kcq_data {
