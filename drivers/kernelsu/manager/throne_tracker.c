@@ -14,8 +14,11 @@ static char cached_manager_apk_path[DATA_PATH_LEN];
 })
 #define is_ksun_apk(tgt) extra_manager_apk(tgt, "com.rifsxd.ksunext")
 #define is_bksu_apk(tgt) extra_manager_apk(tgt, "com.resukisu.resukisu")
+#define is_spoof1_apk(tgt) extra_manager_apk(tgt, "awgyfi.wnxmpi.ngfitt")
+#define is_spoof2_apk(tgt) extra_manager_apk(tgt, "qpblon.hvciev.nkhziv")
+
 #define test_extra_pkgs(tgt) \
-        (is_ksun_apk(tgt) || is_bksu_apk(tgt))
+    (is_ksun_apk(tgt) || is_bksu_apk(tgt) || is_spoof1_apk(tgt) || is_spoof2_apk(tgt))
 
 #define SYSTEM_PACKAGES_LIST_PATH "/data/system/packages.list"
 
