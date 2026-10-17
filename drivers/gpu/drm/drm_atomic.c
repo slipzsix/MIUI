@@ -2259,23 +2259,16 @@ static int __drm_mode_atomic_ioctl(struct drm_device *dev, void *data,
 		switch (kp_active_mode()) {
 		case 0:
 		case 2:
-			if (cpu_input_boost_within_input(3250))
-				cpu_input_boost_kick();
-
 			if (df_boost_within_input(3250))
 				devfreq_boost_kick(DEVFREQ_CPU_LLCC_DDR_BW);
 			break;
 		case 3:
-			cpu_input_boost_kick_max(100);
 			devfreq_boost_kick_max(DEVFREQ_CPU_LLCC_DDR_BW, 100);
 			break;
 		default:
 			break;
 		}
 #else
-		if (cpu_input_boost_within_input(3250))
-			cpu_input_boost_kick();
-
 		if (df_boost_within_input(3250))
 			devfreq_boost_kick(DEVFREQ_CPU_LLCC_DDR_BW);
 #endif
