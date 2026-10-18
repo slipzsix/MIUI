@@ -426,6 +426,9 @@ int dsi_panel_switch(struct dsi_panel *panel);
 
 int dsi_panel_post_switch(struct dsi_panel *panel);
 
+void dsi_panel_gamma_mode_change(struct dsi_panel *panel,
+                struct dsi_display_mode *mode);
+
 void dsi_dsc_pclk_param_calc(struct msm_display_dsc_info *dsc, int intf_width);
 
 void dsi_panel_bl_handoff(struct dsi_panel *panel);
