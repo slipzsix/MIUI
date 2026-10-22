@@ -74,12 +74,12 @@ jobs:
            cp out/arch/arm64/boot/dtbo.img AnyKernel3/dtbo.img
            cp out/arch/arm64/boot/dtb.img AnyKernel3/dtb.img
            cd AnyKernel3
-           zip -r "../SUperRyzeNS-AOSP-${{ env.BUILD_TIME }}.zip" *
+           zip -r "../SUperRyzeNS-AOSP-NSU-${{ env.BUILD_TIME }}.zip" *
                     
     - name: 📩 Upload Kernel
       uses: actions/upload-artifact@v4
       with:
-        name: SUperRyzeNS-AOSP-${{ env.BUILD_TIME }}
+        name: SUperRyzeNS-AOSP-NSU-${{ env.BUILD_TIME }}
         path: AnyKernel3/*
 
     - name: 💌 Sending to zeNS Telegram Bot
@@ -87,7 +87,7 @@ jobs:
       run: |
         cd AnyKernel3
 
-        ZIP_NAME=SUperRyzeNS-AOSP-${{ env.BUILD_TIME }}.zip
+        ZIP_NAME=SUperRyzeNS-AOSP-NSU-${{ env.BUILD_TIME }}.zip
         zip -r9 "$ZIP_NAME" ./*
 
         CAPTION="✅ <b>Kernel Build Success</b>
