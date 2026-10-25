@@ -20,6 +20,7 @@
 #include <linux/debugfs.h>
 #include <linux/uaccess.h>
 #include <linux/interrupt.h>
+#include <linux/irq.h>
 #include <linux/workqueue.h>
 #include <linux/dma-buf.h>
 #include <linux/pm_runtime.h>
@@ -811,6 +812,20 @@ static struct kgsl_device *kgsl_get_minor(int minor)
  * @context: Pointer to the context for the timestamp
  * @timestamp: The timestamp to compare
  */
+int kgsl_check_timestamp(struct kgsl_device *device,
+	struct kgsl_context *context, unsigned int timestamp)
+{
+	unsigned int ts_processed;
+
+	kgsl_readtimestamp(device, context, KGSL_TIMESTAMP_RETIRED,
+		&ts_processed);
+
+	return (timestamp_cmp(ts_processed, timestamp) >= 0);
+}
+EXPORT_SYMBOL(kgsl_check_timestamp);
+
+static void kgsl_pin_irq(struct kgsl_device *device);
+
 static int kgsl_suspend_device(struct kgsl_device *device, pm_message_t state)
 {
 	int status = -EINVAL;
@@ -838,6 +853,7 @@ static int kgsl_resume_device(struct kgsl_device *device, pm_message_t state)
 		return -EINVAL;
 
 	KGSL_PWR_WARN(device, "resume start\n");
+	kgsl_pin_irq(device);
 	mutex_lock(&device->mutex);
 	ret = device->ftbl->resume_device(device, state);
 	if (ret) {
@@ -4949,6 +4965,17 @@ static int _register_device(struct kgsl_device *device)
 	return 0;
 }
 
+/*
+ * kgsl_pin_irq - pin the kgsl interrupt to a fixed CPU and stop the
+ * IRQ balancer from moving it.  Must be called with the interrupt
+ * requested; safe to call while the interrupt is disabled.
+ */
+static void kgsl_pin_irq(struct kgsl_device *device)
+{
+	irq_set_status_flags(device->pwrctrl.interrupt_num, IRQ_NO_BALANCING);
+	irq_set_affinity(device->pwrctrl.interrupt_num, cpumask_of(1));
+}
+
 int kgsl_device_platform_probe(struct kgsl_device *device)
 {
 	int status = -EINVAL;
@@ -5029,6 +5056,7 @@ int kgsl_device_platform_probe(struct kgsl_device *device)
 			      device->pwrctrl.interrupt_num, status);
 		goto error_pwrctrl_close;
 	}
+	kgsl_pin_irq(device);
 	disable_irq(device->pwrctrl.interrupt_num);
 
 	KGSL_DRV_INFO(device,
