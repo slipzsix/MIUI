@@ -22,6 +22,24 @@
 
 uint32_t g_sde_irq_status;
 
+/*
+ * SM7150 (SD732G): CPU0-5 = Silver, CPU6-7 = Gold.
+ * Mask CPU2-5: the IRQ normally lands on CPU2 (lowest online CPU in the
+ * mask) and falls back to CPU3..5, never to the gold cluster.
+ */
+#define SDE_IRQ_CPUS_MASK	0x3cUL
+
+static void sde_irq_pin(struct sde_kms *sde_kms)
+{
+	unsigned long bits = SDE_IRQ_CPUS_MASK;
+	int rc;
+
+	rc = irq_set_affinity(sde_kms->irq_num, to_cpumask(&bits));
+	if (rc)
+		pr_warn_ratelimited("failed to pin irq %d: %d\n",
+				sde_kms->irq_num, rc);
+}
+
 void sde_irq_update(struct msm_kms *msm_kms, bool enable)
 {
 	struct sde_kms *sde_kms = to_sde_kms(msm_kms);
@@ -39,7 +57,7 @@ void sde_irq_update(struct msm_kms *msm_kms, bool enable)
 		 * migrates this interrupt away from CPU 2; re-pin it now
 		 * that all CPUs are back online.
 		 */
-		irq_set_affinity(sde_kms->irq_num, cpumask_of(2));
+		sde_irq_pin(sde_kms);
 		enable_irq(sde_kms->irq_num);
 	} else {
 		disable_irq(sde_kms->irq_num);
@@ -132,7 +150,7 @@ int sde_irq_postinstall(struct msm_kms *kms)
 		return -EINVAL;
 	}
 
-	irq_set_affinity(sde_kms->irq_num, cpumask_of(2));
+    sde_irq_pin(sde_kms);
 
 	rc = sde_core_irq_postinstall(sde_kms);
 
