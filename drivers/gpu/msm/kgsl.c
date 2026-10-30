@@ -4966,14 +4966,25 @@ static int _register_device(struct kgsl_device *device)
 }
 
 /*
- * kgsl_pin_irq - pin the kgsl interrupt to a fixed CPU and stop the
- * IRQ balancer from moving it.  Must be called with the interrupt
- * requested; safe to call while the interrupt is disabled.
+ * SM7150 (SD732G): CPU0-5 = Silver (A55), CPU6-7 = Gold (A76).
+ * Mask CPU1-5: the GIC delivers to the lowest online CPU in the mask, so
+ * the IRQ normally lands on CPU1 and falls back to CPU2..5 if CPU1 is
+ * offline/isolated, never to the gold cluster.
+ * Must be called with the interrupt requested; safe while it is disabled.
  */
+#define KGSL_IRQ_CPUS_MASK	0x3eUL
+
 static void kgsl_pin_irq(struct kgsl_device *device)
 {
-	irq_set_status_flags(device->pwrctrl.interrupt_num, IRQ_NO_BALANCING);
-	irq_set_affinity(device->pwrctrl.interrupt_num, cpumask_of(1));
+	unsigned int irq = device->pwrctrl.interrupt_num;
+	unsigned long bits = KGSL_IRQ_CPUS_MASK;
+	int ret;
+
+	irq_set_status_flags(irq, IRQ_NO_BALANCING);
+
+	ret = irq_set_affinity(irq, to_cpumask(&bits));
+	if (ret)
+		KGSL_DRV_WARN(device, "failed to pin irq %u: %d\n", irq, ret);
 }
 
 int kgsl_device_platform_probe(struct kgsl_device *device)
