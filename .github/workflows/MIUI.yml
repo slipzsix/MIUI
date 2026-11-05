@@ -4,9 +4,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [miui, legacy]
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
+      with:
+          fetch-depth: 0
       
     - name: 🕚 Prepare timezone 
       run: |
@@ -36,6 +42,23 @@ jobs:
             echo "PATH=$(pwd)/clang/bin:$PATH" >> $GITHUB_ENV
             echo "GCC64_PATH=$(pwd)/gcc64" >> $GITHUB_ENV
             echo "GCC32_PATH=$(pwd)/gcc32" >> $GITHUB_ENV
+            
+    - name: 📂 Apply Legacy Patch for Legacy Variant
+      if: matrix.variant == 'legacy'
+      run: |
+            git config --global user.name "GitHub Actions Bot"
+            git config --global user.email "actions@github.com"
+            git cherry-pick 199abb8afedefb0a983989604575b87aa58ba2ed
+            
+    - name: ♻️ Set Build Filename Prefix
+      run: |
+            if [ "${{ matrix.variant }}" == "miui" ]; then
+              echo "PREFIX=MIUI" >> $GITHUB_ENV
+              echo "KERNEL_NAME=SUperRyzeNS [MIUI]" >> $GITHUB_ENV
+            else
+              echo "PREFIX=Legacy" >> $GITHUB_ENV
+              echo "KERNEL_NAME=SUperRyzeNS [Legacy]" >> $GITHUB_ENV
+            fi
 
     - name: 🖥️ MIUI Dimension
       run: |
@@ -64,7 +87,7 @@ jobs:
     - name: 📩 Upload defconfig 
       uses: actions/upload-artifact@v4
       with:
-        name: defconfig-${{ env.BUILD_TIME }}
+        name: defconfig-${{ env.PREFIX }}-${{ env.BUILD_TIME }}
         path: out/sweet_defconfig.txt
 
     - name: ♻️ Fetch AnyKernel3
@@ -74,34 +97,32 @@ jobs:
            cp out/arch/arm64/boot/dtbo.img AnyKernel3/dtbo.img
            cp out/arch/arm64/boot/dtb.img AnyKernel3/dtb.img
            cd AnyKernel3
-           zip -r "../SUperRyzeNS-MIUI-${{ env.BUILD_TIME }}.zip" *
+           zip -r "SUperRyzeNS-${{ env.PREFIX }}-${{ env.BUILD_TIME }}.zip" *
 
     - name: 📩 Upload Kernel
       uses: actions/upload-artifact@v4
       with:
-        name: SUperRyzeNS-MIUI-${{ env.BUILD_TIME }}
-        path: AnyKernel3/*
+        name: SUperRyzeNS-${{ env.PREFIX }}-${{ env.BUILD_TIME }}
+        path: AnyKernel3/SUperRyzeNS-${{ env.PREFIX }}-${{ env.BUILD_TIME }}.zip
 
     - name: 💌 Sending to zeNS Telegram Bot
       if: success()
       run: |
-        cd AnyKernel3
 
-        ZIP_NAME=SUperRyzeNS-MIUI-${{ env.BUILD_TIME }}.zip
-        zip -r9 "$ZIP_NAME" ./*
+        ZIP_NAME="SUperRyzeNS-${{ env.PREFIX }}-${{ env.BUILD_TIME }}.zip"
 
         CAPTION="✅ <b>Kernel Build Success</b>
         ━━━━━━━━━━━━━━━━━━━━━━━━━━━
         Device          : Redmi Note 10 Pro
-        Kernel           : SUperRyzeNS [MIUI]
+        Kernel           : ${{ env.KERNEL_NAME }}
         Toolchain      : Neutron / Google Clang
         Sender          : zeNS Bot
         Build Time    : ${{ env.BUILD_TIME }}
         ━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-        curl -f \
-          -F document=@"$ZIP_NAME" \
-          -F chat_id=${{ secrets.TG_CHAT_ID }} \
+        curl -v -f \
+          -F document=@"AnyKernel3/$ZIP_NAME" \
+          -F chat_id="${{ secrets.TG_CHAT_ID }}" \
           -F parse_mode=HTML \
           -F caption="$CAPTION" \
           https://api.telegram.org/bot${{ secrets.TG_TOKEN }}/sendDocument
