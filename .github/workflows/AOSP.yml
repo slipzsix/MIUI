@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
@@ -17,8 +17,7 @@ jobs:
     - name: ♻️ Install Dependencies
       run: |
             sudo apt update -y
-            sudo apt install -y zstd bc cpio flex bison aptitude git python-is-python3 tar perl wget curl lz4 lld llvm
-            sudo aptitude install -y libssl-dev
+            sudo apt install -y bc cpio flex bison git python-is-python3 tar aria2 perl wget curl lz4 libssl-dev libxml2
         
     - name: ♻️ Cloning Toolchains 
       run: |
