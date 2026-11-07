@@ -1,4 +1,4 @@
-name: SUperRyzeNS [SR-Revive]
+name: SUperRyzeNS [Revive]
 on:
   workflow_dispatch:
 jobs:
