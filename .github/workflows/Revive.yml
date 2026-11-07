@@ -4,6 +4,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
@@ -12,7 +13,22 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
       with:
-          fetch-depth: 0
+          fetch-depth: 1
+      
+    - name: 🧹 Free Disk Space
+      run: |
+            echo "Disk sebelum cleanup:"
+            df -h /
+            sudo rm -rf /usr/share/dotnet
+            sudo rm -rf /usr/local/lib/android
+            sudo rm -rf /opt/ghc
+            sudo rm -rf /opt/hostedtoolcache/CodeQL
+            sudo rm -rf /usr/local/share/boost
+            sudo rm -rf /usr/share/swift
+            sudo rm -rf /usr/local/.ghcup
+            sudo apt-get clean
+            echo "Disk setelah cleanup:"
+            df -h /
       
     - name: 🕚 Prepare timezone 
       run: |
@@ -47,6 +63,7 @@ jobs:
       run: |
             git config --global user.name "GitHub Actions Bot"
             git config --global user.email "actions@github.com"
+            git fetch --no-tags --depth=2 origin 199abb8afedefb0a983989604575b87aa58ba2ed
             git cherry-pick 199abb8afedefb0a983989604575b87aa58ba2ed
 
     - name: 📂 Apply AOSP Patch for AOSP Variant
@@ -54,6 +71,7 @@ jobs:
       run: |
             git config --global user.name "GitHub Actions Bot"
             git config --global user.email "actions@github.com"
+            git fetch --no-tags --depth=3 origin 280bb9a36fe4bfae196dbc97b1d7c21db48b69fb
             git cherry-pick 55a747bcbe6d2b26f0257cf1a7ab755a8b4cf90e
             git cherry-pick 280bb9a36fe4bfae196dbc97b1d7c21db48b69fb
 
@@ -87,6 +105,7 @@ jobs:
             curl -LSs "https://raw.githubusercontent.com/maxsteeel/nomount/refs/heads/dev/kernel/setup.sh" | bash -s master
     
     - name: ♻️ Build 🦊SUperRyzeNS
+      timeout-minutes: 60
       run: |
            export ARCH=arm64
            export PATH="$CLANG_PATH/bin:$GCC64_PATH/bin:$GCC32_PATH/bin:$PATH"
@@ -124,6 +143,7 @@ jobs:
 
     - name: 💌 Sending to zeNS Telegram Bot
       if: success()
+      timeout-minutes: 10
       run: |
 
         ZIP_NAME="SUperRyzeNS-${{ env.PREFIX }}-${{ env.BUILD_TIME }}.zip"
@@ -138,6 +158,10 @@ jobs:
         ━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
         curl -v -f \
+          --connect-timeout 30 \
+          --max-time 300 \
+          --retry 3 \
+          --retry-delay 5 \
           -F document=@"AnyKernel3/$ZIP_NAME" \
           -F chat_id="${{ secrets.TG_CHAT_ID }}" \
           -F parse_mode=HTML \
